@@ -1,17 +1,17 @@
-import express, { Request, Response } from 'express'
-// const cors = require('cors');
+import express, { Request, Response } from 'express';
+import dotenv from 'dotenv';
+import recommendRoute from './routes/recommend';
 
-import router from './routes/mainRoutes';
+dotenv.config();
 
 const app = express();
 const PORT = process.env.port || 3000;
 
-app.use('/users', router)
+app.use(express.json())
+app.use('/api/recommend', recommendRoute);
 
-app.get('/', (req:Request, res:Response) => {
-	res.send('hello world');
-});
+app.get('/', (req: Request, res: Response) => {
+	res.send("Hello World");
+})
 
-app.listen(PORT, () => {
-	console.log(`Server is running on http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log(`listening on localhost ${PORT}`));
