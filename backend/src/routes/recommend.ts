@@ -5,7 +5,7 @@ import { buildMessages } from '../utils/msg';
 
 const router = Router();
 
-router.post('/', async (req, res) => {
+router.post('/', async (req: Request, res: Response) => {
 	const { mediaType, similarMedia, mood } = req.body;
 
 	if (!mediaType && !similarMedia && !mood) {

@@ -1,11 +1,11 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import recommendRoute from './routes/recommend';
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.port || 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json())
@@ -18,7 +18,7 @@ app.get('/', (_req: Request, res: Response) => {
 });
 
 // Error handling
-app.use((err: Error, _req: Request, res: Response) => {
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 	console.error(err.stack);
 	res.status(500).json({ error: 'Something went wrong', message: err.message });
 })

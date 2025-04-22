@@ -7,6 +7,7 @@ export interface Message {
 
 export interface Recommendation {
 	title: string;
+	mediaType: string;
 	creator: string;
 	releaseYear: number;
 	summary: string;
