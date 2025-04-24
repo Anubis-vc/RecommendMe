@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import recommendRoute from './routes/recommend';
 
 dotenv.config();
@@ -7,8 +8,16 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const corsOptions = {
+	origin: ['http://localhost:5173'],
+	methods: ['POST'],
+	allowedHeaders: ['Content-Type'],
+	credentials: false,
+};
+
 // Middleware
 app.use(express.json())
+app.use(cors(corsOptions));
 
 // Routes
 app.use('/api/recommend', recommendRoute);
