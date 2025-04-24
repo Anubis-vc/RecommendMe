@@ -12,7 +12,7 @@ const MOODS = [
 	'Nostalgic', 'Romantic', 'Mysterious'
 ];
 
-const QuestionsPage = () => {
+const FormPage = () => {
 	const navigate = useNavigate()
 	const [selectedMediaTypes, setSelectedMediaTypes] = useState<string[]>([]);
 	const [similarMedia, setSimilarMedia] = useState<string>('');
@@ -134,4 +134,4 @@ const QuestionsPage = () => {
 	);
 };
 
-export default QuestionsPage
+export default FormPage;
