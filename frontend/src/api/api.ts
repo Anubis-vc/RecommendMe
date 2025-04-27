@@ -1,7 +1,9 @@
-import { RecommendationRequest, RecommendationResponse, Recommendation } from '../types.ts'
+import { RecommendationRequest, RecommendationResponse, Recommendation } from '../../types.ts'
+
+const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3000"
 
 export const getRecs = async (params: RecommendationRequest): Promise<Recommendation[]> => {
-	const response = await fetch('/api/recommend', {
+	const response = await fetch(`${baseURL}/api/recommend`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
