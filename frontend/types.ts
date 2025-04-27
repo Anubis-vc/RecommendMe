@@ -1,3 +1,6 @@
+export type MediaType = 'Movie' | 'TV Show' | 'Book' | 'Podcast' | 'Music' | 'Video Game'
+export type Mood = 'Happy' | 'Sad' | 'Relaxed' | 'Energetic' | 'Thoughtful' | 'Excited' | 'Nostalgic' | 'Romantic' | 'Mysterious | Hot'
+
 export interface Recommendation {
 	title: string;
 	mediaType: string;
@@ -7,9 +10,9 @@ export interface Recommendation {
 }
 
 export interface RecommendationRequest {
-	mediaType: string[] | null;
-	similarMedia: string[] | null;
-	mood: string | null;
+	mediaTypes: MediaType[];
+	similarMedia: string[];
+	mood: Mood | null;
 }
 
 export interface RecommendationResponse {

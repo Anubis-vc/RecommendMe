@@ -1,49 +1,94 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRecs } from '../api/api.ts';
-import { RecommendationRequest } from '../../types.ts';
+import { MediaType, Mood, RecommendationRequest } from '../../types.ts';
 
 const MEDIA_TYPES = [
 	'Movie', 'TV Show', 'Book', 'Podcast', 'Music', 'Video Game'
 ];
 
-const MOODS = [
-	'Happy', 'Sad', 'Relaxed', 'Energetic', 'Thoughtful', 'Excited',
-	'Nostalgic', 'Romantic', 'Mysterious'
-];
-
+//TODO: only allow up to 5 similar media
+//TODO: check new request set up against backend
+//TODO: would this be better without as many buttons to click through?
+//TODO: section for streaming services?
 const FormPage = () => {
 	const navigate = useNavigate()
-	const [selectedMediaTypes, setSelectedMediaTypes] = useState<string[]>([]);
-	const [similarMedia, setSimilarMedia] = useState<string>('');
-	const [selectedMood, setSelectedMood] = useState<string>('');
+	const [currentStep, setCurrentStep] = useState<number>(1);
+	const [similarMediaInput, setSimilarMediaInput] = useState<string>('');
+	const [formData, setFormData] = useState<RecommendationRequest>({
+		mediaTypes: [],
+		similarMedia: [],
+		mood: null,
+	})
+
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
 
-	const toggleMediaType = (mediaType: string) => {
-		setSelectedMediaTypes(prev =>
-			prev.includes(mediaType)
-				? prev.filter(type => type !== mediaType)
-				: [...prev, mediaType]
-		);
+	const toggleMediaType = (media: MediaType) => {
+		setFormData(prev => {
+			if (prev.mediaTypes.includes(media)) {
+				return {...prev, mediaTypes: prev.mediaTypes.filter(x => x != media)}
+			}
+			else {
+				return {...prev, mediaTypes: [...prev.mediaTypes, media]}
+			}
+		})
 	};
+
+	const addSimilarMedia = (media: string) => {
+		if (media.trim() != '') {
+			setFormData(prev => ( {...prev, similarMedia: [...prev.similarMedia, media] }));
+		}
+	};
+
+	const removeSimilarMedia = (index: number) => {
+		setFormData(prev => ({
+			...prev,
+			similarMedia: prev.similarMedia.filter((_, i) => i != index),
+		}));
+	};
+
+	const selectMood = (mood: Mood) => {
+		setFormData(prev => ({ ...prev, mood: mood }));
+	}
+
+	const handlMediaInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setSimilarMediaInput(e.target.value);
+	}
+
+	const handleMediaInputSubmit = () => {
+		addSimilarMedia(similarMediaInput);
+		setSimilarMediaInput('');
+	}
+
+	const nextStep = () => {
+		setCurrentStep(Math.min(currentStep + 1, 3));
+	};
+
+	const prevStep = () => {
+		setCurrentStep(Math.max(1, currentStep - 1));
+	};
+
+	const canProceed = () => {
+		switch(currentStep) {
+			case 1:
+				return formData.mediaTypes.length > 0
+			case 2:
+				return formData.similarMedia.length > 0
+			case 3:
+				return formData.mood != null
+		}
+	}
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setIsLoading(true);
 		setError(null);
 
-		// make sure at least one filter is selected
-		if (selectedMediaTypes.length === 0 && !similarMedia && !selectedMood) {
-			setError('Please select at least one filter');
-			setIsLoading(false);
-			return;
-		}
-
 		const request: RecommendationRequest = {
-			mediaType: selectedMediaTypes.length > 0 ? selectedMediaTypes : null,
-			similarMedia: similarMedia ? similarMedia.split(',').map(item => item.trim()) : null,
-			mood: selectedMood || null
+			mediaTypes: formData.mediaTypes,
+			similarMedia: formData.similarMedia,
+			mood: formData.mood
 		};
 
 		try {
@@ -51,7 +96,7 @@ const FormPage = () => {
 
 			// Store recommendations in localStorage to access them on the results page
 			localStorage.setItem('recs', JSON.stringify(recs));
-			navigate('/recs'); //TODO: ADD PATH TO APP.tsx
+			navigate('/recs');
 		}
 		catch (err) {
 			setError(err instanceof Error ? err.message : 'Failed to get recommendations');
