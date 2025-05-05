@@ -1,5 +1,5 @@
 export type MediaType = 'Movie' | 'TV Show' | 'Book' | 'Podcast' | 'Music' | 'Video Game'
-export type Mood = 'Happy' | 'Sad' | 'Relaxed' | 'Energetic' | 'Thoughtful' | 'Excited' | 'Nostalgic' | 'Romantic' | 'Mysterious | Hot'
+export type Mood = 'Happy' | 'Sad' | 'Relaxed' | 'Energetic' | 'Thoughtful' | 'Excited' | 'Nostalgic' | 'Romantic' | 'Mysterious' | 'Hot'
 
 export interface Recommendation {
 	title: string;

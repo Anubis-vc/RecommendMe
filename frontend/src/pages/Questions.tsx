@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { getRecs } from '../api/api.ts';
 import { MediaType, Mood, RecommendationRequest } from '../../types.ts';
 import MediaSelect from '../components/MediaSelect.tsx';
+import SimilarMedia from '../components/SimilarMedia.tsx';
+import MoodStep from '../components/Mood.tsx';
 
 //TODO: only allow up to 5 similar media
 //TODO: check new request set up against backend
@@ -11,16 +13,15 @@ import MediaSelect from '../components/MediaSelect.tsx';
 //TODO: Autocomplete on media
 const FormPage = () => {
 	const navigate = useNavigate()
-	const [currentStep, setCurrentStep] = useState<number>(1);
-	const [similarMediaInput, setSimilarMediaInput] = useState<string>('');
+	const [currentStep, setCurrentStep] = useState<number>(2);
 	const [formData, setFormData] = useState<RecommendationRequest>({
 		mediaTypes: [],
 		similarMedia: [],
 		mood: null,
 	})
 
-	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const [error, setError] = useState<string | null>(null);
+	// const [isLoading, setIsLoading] = useState<boolean>(false);
+	const [error, setError] = useState<string | null>('');
 
 	const toggleMediaType = (media: MediaType) => {
 		setFormData(prev => {
@@ -50,23 +51,6 @@ const FormPage = () => {
 		setFormData(prev => ({ ...prev, mood: mood }));
 	}
 
-	const handlMediaInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setSimilarMediaInput(e.target.value);
-	}
-
-	const handleMediaInputSubmit = () => {
-		addSimilarMedia(similarMediaInput);
-		setSimilarMediaInput('');
-	}
-
-	const handleMediaInputEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
-		if (e.key == 'enter') {
-			e.preventDefault();
-			addSimilarMedia(similarMediaInput);
-			setSimilarMediaInput('');
-		}
-	}
-
 	const nextStep = () => {
 		setCurrentStep(Math.min(currentStep + 1, 3));
 	};
@@ -88,7 +72,7 @@ const FormPage = () => {
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setIsLoading(true);
+		// setIsLoading(true);
 		setError(null);
 
 		const request: RecommendationRequest = {
@@ -108,7 +92,7 @@ const FormPage = () => {
 			setError(err instanceof Error ? err.message : 'Failed to get recommendations');
 		}
 		finally {
-			setIsLoading(false)
+			// setIsLoading(false)
 		}
 	};
 
@@ -128,6 +112,8 @@ const FormPage = () => {
 				</div>
 			</div>
 
+			{error && <div className='text-red-500'>{error}</div>}
+
 			{/* Media Type Portion */}
 			<MediaSelect
 				mediaTypes={formData.mediaTypes}
@@ -135,10 +121,53 @@ const FormPage = () => {
 			/>
 
 			{/* Similar Media Portion */}
+			<SimilarMedia
+				similarMedia={formData.similarMedia}
+				addMedia={addSimilarMedia}
+				removeMedia={removeSimilarMedia}
+			/>
 
 			{/* Mood Portion */}
+			<MoodStep
+				mood={formData.mood}
+				setMood={selectMood}
+			/>
 
 			{/* Navigation */}
+			<div className='flex justify-between'>
+				{currentStep > 1 ?
+					<button
+						onClick={prevStep}
+						className='px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500'
+					>
+						Back
+					</button> :
+					<div></div>
+				}
+
+				{currentStep < 3 ? (
+					<button
+						onClick={nextStep}
+						className={`px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${canProceed()
+							? 'bg-blue-500 text-white hover:bg-blue-600'
+							: 'bg-blue-300 text-white cursor-not-allowed'
+							}`}
+					>
+						Next
+					</button>
+				) : (
+					<button
+						onClick={handleSubmit}
+						disabled={!canProceed()}
+						className={`px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${canProceed()
+								? 'bg-green-500 text-white hover:bg-green-600'
+								: 'bg-green-300 text-white cursor-not-allowed'
+							}`}
+					>
+						Submit
+					</button>
+				)}
+			</div>
 		</div>
 	);
 };
